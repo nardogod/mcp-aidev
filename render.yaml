@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mcp-aidev
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./data/mcp_aidev.db
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: PYTHONPATH
+        value: /app/src
+    healthCheckPath: /health
+    autoDeploy: true
+
