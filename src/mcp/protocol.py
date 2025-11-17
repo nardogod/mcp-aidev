@@ -176,5 +176,28 @@ class MCPProtocol:
                 progress_data=arguments.get("progress_data")
             )
         
+        elif tool_name == "get_project_status":
+            return self.service.get_project_status(
+                project_id=arguments["project_id"]
+            )
+        
+        elif tool_name == "list_project_phases":
+            return {
+                "project_id": arguments["project_id"],
+                "phases": self.service.list_project_phases(
+                    project_id=arguments["project_id"]
+                )
+            }
+        
+        elif tool_name == "get_current_phase":
+            current_phase = self.service.get_current_phase(
+                project_id=arguments["project_id"]
+            )
+            return {
+                "project_id": arguments["project_id"],
+                "current_phase": current_phase,
+                "all_completed": current_phase is None
+            }
+        
         else:
             raise ValueError(f"Unknown tool: {tool_name}")

@@ -185,21 +185,178 @@ class ProjectService:
     
     def list_projects(self) -> List[Dict[str, Any]]:
         """
-        List all projects.
+        List all projects with phase statistics.
         
         Returns:
-            List of project dictionaries
+            List of project dictionaries with phase statistics
         """
         projects = self.db.query(Project).all()
         
-        return [
-            {
+        result = []
+        for p in projects:
+            phases = p.phases
+            total_phases = len(phases)
+            completed_phases = sum(1 for ph in phases if ph.status == "completed")
+            in_progress_phases = sum(1 for ph in phases if ph.status == "in_progress")
+            planned_phases = sum(1 for ph in phases if ph.status == "planned")
+            
+            # Encontrar fase atual (primeira não completada)
+            current_phase = None
+            for ph in sorted(phases, key=lambda x: x.phase_number):
+                if ph.status != "completed":
+                    current_phase = {
+                        "phase_number": ph.phase_number,
+                        "title": ph.title,
+                        "status": ph.status
+                    }
+                    break
+            
+            result.append({
                 "project_id": p.id,
                 "name": p.name,
                 "description": p.description,
                 "status": p.status,
                 "created_at": p.created_at.isoformat(),
-                "phases_count": len(p.phases)
+                "phases_count": total_phases,
+                "phases_completed": completed_phases,
+                "phases_in_progress": in_progress_phases,
+                "phases_planned": planned_phases,
+                "current_phase": current_phase,
+                "progress_percentage": int((completed_phases / total_phases * 100)) if total_phases > 0 else 0
+            })
+        
+        return result
+    
+    def get_project_status(self, project_id: str) -> Dict[str, Any]:
+        """
+        Get comprehensive project status including phase statistics.
+        
+        Args:
+            project_id: UUID of the project
+            
+        Returns:
+            Dictionary with project status and phase statistics
+            
+        Raises:
+            ValueError: If project not found
+        """
+        project = self.db.query(Project).filter_by(id=project_id).first()
+        
+        if not project:
+            raise ValueError(f"Project {project_id} not found")
+        
+        phases = self.db.query(Phase).filter_by(project_id=project_id).order_by(Phase.phase_number).all()
+        
+        total_phases = len(phases)
+        completed_phases = sum(1 for ph in phases if ph.status == "completed")
+        in_progress_phases = sum(1 for ph in phases if ph.status == "in_progress")
+        planned_phases = sum(1 for ph in phases if ph.status == "planned")
+        
+        # Encontrar fase atual (primeira não completada)
+        current_phase = None
+        for ph in phases:
+            if ph.status != "completed":
+                current_phase = {
+                    "phase_number": ph.phase_number,
+                    "title": ph.title,
+                    "status": ph.status,
+                    "created_at": ph.created_at.isoformat()
+                }
+                break
+        
+        # Lista de todas as fases com status
+        phases_list = [
+            {
+                "phase_number": ph.phase_number,
+                "title": ph.title,
+                "status": ph.status,
+                "created_at": ph.created_at.isoformat(),
+                "updated_at": ph.updated_at.isoformat()
             }
-            for p in projects
+            for ph in phases
         ]
+        
+        return {
+            "project_id": project.id,
+            "name": project.name,
+            "description": project.description,
+            "status": project.status,
+            "created_at": project.created_at.isoformat(),
+            "updated_at": project.updated_at.isoformat(),
+            "total_phases": total_phases,
+            "phases_completed": completed_phases,
+            "phases_in_progress": in_progress_phases,
+            "phases_planned": planned_phases,
+            "current_phase": current_phase,
+            "progress_percentage": int((completed_phases / total_phases * 100)) if total_phases > 0 else 0,
+            "phases": phases_list
+        }
+    
+    def list_project_phases(self, project_id: str) -> List[Dict[str, Any]]:
+        """
+        List all phases for a project with their status.
+        
+        Args:
+            project_id: UUID of the project
+            
+        Returns:
+            List of phase dictionaries with status
+            
+        Raises:
+            ValueError: If project not found
+        """
+        project = self.db.query(Project).filter_by(id=project_id).first()
+        
+        if not project:
+            raise ValueError(f"Project {project_id} not found")
+        
+        phases = self.db.query(Phase).filter_by(project_id=project_id).order_by(Phase.phase_number).all()
+        
+        return [
+            {
+                "phase_id": ph.id,
+                "phase_number": ph.phase_number,
+                "title": ph.title,
+                "status": ph.status,
+                "created_at": ph.created_at.isoformat(),
+                "updated_at": ph.updated_at.isoformat(),
+                "has_progress_data": ph.progress_data is not None
+            }
+            for ph in phases
+        ]
+    
+    def get_current_phase(self, project_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get the current phase (first non-completed phase) for a project.
+        
+        Args:
+            project_id: UUID of the project
+            
+        Returns:
+            Dictionary with current phase info or None if all phases completed
+            
+        Raises:
+            ValueError: If project not found
+        """
+        project = self.db.query(Project).filter_by(id=project_id).first()
+        
+        if not project:
+            raise ValueError(f"Project {project_id} not found")
+        
+        phases = self.db.query(Phase).filter_by(project_id=project_id).order_by(Phase.phase_number).all()
+        
+        # Encontrar primeira fase não completada
+        for ph in phases:
+            if ph.status != "completed":
+                return {
+                    "phase_id": ph.id,
+                    "phase_number": ph.phase_number,
+                    "title": ph.title,
+                    "status": ph.status,
+                    "specs": ph.specs,
+                    "created_at": ph.created_at.isoformat(),
+                    "updated_at": ph.updated_at.isoformat()
+                }
+        
+        # Todas as fases estão completas
+        return None

@@ -144,6 +144,48 @@ class MCPTools:
                     },
                     "required": ["project_id", "phase_number", "status"]
                 }
+            },
+            "get_project_status": {
+                "name": "get_project_status",
+                "description": "Get comprehensive project status including total phases, completed phases, in-progress phases, current phase, and progress percentage",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "project_id": {
+                            "type": "string",
+                            "description": "UUID of the project"
+                        }
+                    },
+                    "required": ["project_id"]
+                }
+            },
+            "list_project_phases": {
+                "name": "list_project_phases",
+                "description": "List all phases for a project with their status (planned, in_progress, completed)",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "project_id": {
+                            "type": "string",
+                            "description": "UUID of the project"
+                        }
+                    },
+                    "required": ["project_id"]
+                }
+            },
+            "get_current_phase": {
+                "name": "get_current_phase",
+                "description": "Get the current phase (first non-completed phase) for a project. Returns None if all phases are completed.",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "project_id": {
+                            "type": "string",
+                            "description": "UUID of the project"
+                        }
+                    },
+                    "required": ["project_id"]
+                }
             }
         }
     
