@@ -37,6 +37,10 @@ class MCPTools:
                         "description": {
                             "type": "string",
                             "description": "Optional description of the project"
+                        },
+                        "preferences": {
+                            "type": "object",
+                            "description": "Optional PRP (Product Requirements Planning) preferences for the project"
                         }
                     },
                     "required": ["name"]

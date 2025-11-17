@@ -151,7 +151,8 @@ class MCPProtocol:
         if tool_name == "create_project":
             return self.service.create_project(
                 name=arguments["name"],
-                description=arguments.get("description")
+                description=arguments.get("description"),
+                preferences=arguments.get("preferences")
             )
         
         elif tool_name == "save_phase":

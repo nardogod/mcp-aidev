@@ -1,0 +1,73 @@
+# Cursor Rules for MCP-AIDev Projects
+
+## Project Context
+This project uses MCP (Model Context Protocol) for orchestrating AI-powered development workflows.
+
+## Development Principles
+
+1. **Test-Driven Development (TDD)**
+   - Write tests before implementation
+   - Ensure all tests pass before marking phase as complete
+   - Use pytest for Python projects
+
+2. **Security First**
+   - Validate all inputs
+   - Use parameterized queries for database operations
+   - Never expose API keys or secrets
+
+3. **Code Quality**
+   - Follow PEP 8 for Python code
+   - Use type hints
+   - Add docstrings to all functions and classes
+   - Keep functions small and focused
+
+4. **Phase-Based Development**
+   - Each phase should be independently implementable
+   - Dependencies between phases should be minimal
+   - Update progress after completing each phase
+
+## File Structure
+
+- `src/` - Source code
+- `agent/` - LangGraph agent for planning
+- `mcp_client/` - MCP client for Cursor integration
+- `tests/` - Test files
+- `docs/` - Documentation
+
+## MCP Tools Available
+
+- `run_agent` - Plan project phases automatically
+- `get_phase` - Get phase specifications
+- `list_projects` - List all projects
+- `get_project_status` - Get complete project status
+- `update_progress` - Update phase progress
+
+## Automatic Implementation
+
+When implementing phases automatically:
+- Generate complete, working code
+- Include proper error handling
+- Add comments for complex logic
+- Follow the project's existing patterns
+- Run tests after implementation
+
+## Common Commands
+
+```bash
+# Run agent to plan phases
+python executar_run_agent.py
+
+# Execute complete project automatically
+python executar_projeto_completo.py
+
+# List projects
+python listar_projetos_mcp.py
+```
+
+## Notes
+
+- Always check MCP server health before operations
+- Use environment variables for configuration
+- Keep project descriptions clear and specific
+- Update progress after each phase completion
+

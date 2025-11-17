@@ -16,6 +16,9 @@ print()
 print("Este script vai perguntar cada informacao e aguardar sua resposta.")
 print("Pressione Enter apos cada resposta.")
 print()
+print("NOTA: Apos coletar informacoes basicas, o sistema perguntara")
+print("      sobre preferencias do projeto (PRP) ou usara padroes de mercado.")
+print()
 
 # Pergunta 1: Nome do projeto
 print("=" * 60)

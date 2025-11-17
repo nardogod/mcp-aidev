@@ -22,18 +22,19 @@ class ProjectService:
         """
         self.db = db
     
-    def create_project(self, name: str, description: str = None) -> Dict[str, Any]:
+    def create_project(self, name: str, description: str = None, preferences: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Create a new project.
         
         Args:
             name: Project name
             description: Optional project description
+            preferences: Optional PRP (Product Requirements Planning) preferences
             
         Returns:
             Dictionary with project info and success message
         """
-        project = Project(name=name, description=description)
+        project = Project(name=name, description=description, preferences=preferences)
         self.db.add(project)
         self.db.commit()
         self.db.refresh(project)
@@ -42,6 +43,7 @@ class ProjectService:
             "project_id": project.id,
             "name": project.name,
             "description": project.description,
+            "preferences": project.preferences,
             "status": project.status,
             "created_at": project.created_at.isoformat(),
             "message": f"Project '{name}' created successfully"
