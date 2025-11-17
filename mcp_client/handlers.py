@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from agent.main import run_agent
 from agent.tools import MCPTools
 from agent.config import config
+from mcp_client.voice_handler import handle_dictate_text
 
 
 class MCPHandler:
@@ -174,6 +175,32 @@ class MCPHandler:
                 }
             },
             {
+                "name": "dictate_text",
+                "description": "Capture voice input and convert to text for writing in Cursor editor. Records audio from microphone and transcribes it. The transcribed text will be returned for insertion at cursor position.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "duration": {
+                            "type": "integer",
+                            "description": "Recording duration in seconds (default: 5)",
+                            "default": 5
+                        },
+                        "language": {
+                            "type": "string",
+                            "description": "Language code for transcription (default: pt-BR for Portuguese, en-US for English)",
+                            "default": "pt-BR"
+                        },
+                        "insert_mode": {
+                            "type": "string",
+                            "enum": ["append", "replace", "insert"],
+                            "description": "How to insert text: append (at end), replace (selected text), insert (at cursor)",
+                            "default": "insert"
+                        }
+                    },
+                    "required": []
+                }
+            },
+            {
                 "name": "get_project_status",
                 "description": "Get comprehensive project status including total phases, completed phases, in-progress phases, current phase, and progress percentage",
                 "inputSchema": {
@@ -269,6 +296,8 @@ class MCPHandler:
             result = self._call_get_current_phase(arguments)
         elif tool_name == "execute_agent_command":
             result = self._call_execute_agent_command(arguments)
+        elif tool_name == "dictate_text":
+            result = self._call_dictate_text(arguments)
         else:
             raise ValueError(f"Unknown tool: {tool_name}")
         
@@ -366,6 +395,37 @@ class MCPHandler:
             return result.get("data", {})
         else:
             raise ValueError(result.get("error", "Unknown error"))
+    
+    def _call_dictate_text(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Capture voice and convert to text for writing in Cursor.
+        
+        Returns text that Cursor can insert at cursor position.
+        """
+        try:
+            result = handle_dictate_text(args)
+            
+            if result.get("success"):
+                transcribed_text = result.get("text", "")
+                return {
+                    "success": True,
+                    "text": transcribed_text,
+                    "method": result.get("method", "unknown"),
+                    "message": f"Transcribed text ready for insertion: {transcribed_text[:50]}...",
+                    "instructions": f"Insert the following text at cursor position:\n\n{transcribed_text}"
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": result.get("error", "Transcription failed"),
+                    "text": ""
+                }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Voice capture failed: {str(e)}",
+                "text": ""
+            }
     
     def _call_get_current_phase(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Get current phase for a project"""

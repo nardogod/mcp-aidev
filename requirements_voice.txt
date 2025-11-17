@@ -1,0 +1,19 @@
+# Dependencies for voice-to-text functionality
+
+# Speech Recognition (multiple backends)
+SpeechRecognition>=3.10.0
+
+# Audio recording
+pyaudio>=0.2.14; sys_platform != "darwin"
+portaudio19-dev; sys_platform == "linux"
+
+# OpenAI Whisper API (optional, requires API key)
+openai>=1.0.0
+
+# Local Whisper (optional, for offline use)
+# whisper>=1.0.0
+# torch>=2.0.0
+
+# Alternative: faster-whisper (lighter weight)
+# faster-whisper>=0.9.0
+
